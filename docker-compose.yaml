@@ -1,0 +1,30 @@
+version: "3"
+services:
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./mysql/:/etc/mysql/conf.d/
+      - ./db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    dns: 114.114.114.114
+    environment:
+      MYSQL_ROOT_PASSWORD: jirarootpassword
+      MYSQL_DATABASE: jira
+      MYSQL_USER: jira
+      MYSQL_PASSWORD: jirapassword
+    command: [
+      "--character-set-server=utf8",
+      "--collation-server=utf8_bin"
+    ]
+  
+  jira:
+    depends_on:
+      - mysql
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    dns: 114.114.114.114
