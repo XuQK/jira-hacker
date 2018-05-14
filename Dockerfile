@@ -14,6 +14,7 @@ COPY ./atlassian-extras-3.2.jar             /tmp/atlassian-extras-3.2.jar
 COPY ./mysql-connector-java-5.1.39-bin.jar  /tmp/mysql-connector-java-5.1.39-bin.jar
 COPY ./postgresql-9.4.1212.jar              /tmp/postgresql-9.4.1212.jar
 COPY ./repositories                         /tmp/repositories
+COPY ./postgresql-42.2.1.jar                /tmp/postgresql-42.2.1.jar
 #COPY ./docker-entrypoint.sh                 /tmp/docker-entrypoint.sh
 
 RUN set -x \
@@ -31,12 +32,15 @@ RUN set -x \
 #    && curl -Ls                "https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.45.tar.gz" | tar -xz --directory "${JIRA_INSTALL}/atlassian-jira/WEB-INF/lib/" --strip-components=1 --no-same-owner "mysql-connector-java-5.1.45/mysql-connector-java-5.1.45-bin.jar" \
     && mv /tmp/mysql-connector-java-5.1.39-bin.jar "${JIRA_INSTALL}/lib" \
     && rm -f                   "${JIRA_INSTALL}/lib/postgresql-9.1-903.jdbc4-atlassian-hosted.jar" \
-    && curl -Ls                "https://jdbc.postgresql.org/download/postgresql-42.2.1.jar" -o "${JIRA_INSTALL}/lib/postgresql-42.2.1.jar" \
+    #&& curl -Ls                "https://jdbc.postgresql.org/download/postgresql-42.2.1.jar" -o "${JIRA_INSTALL}/lib/postgresql-42.2.1.jar" \
+    && rm -f                   "${JIRA_INSTALL}/lib/postgresql-42.2.1.jar" \
+    && cp                      /tmp/postgresql-42.2.1.jar "${JIRA_INSTALL}/lib/postgresql-42.2.1.jar" \
     && echo -e                 "\njira.home=$JIRA_HOME" >> "${JIRA_INSTALL}/atlassian-jira/WEB-INF/classes/jira-application.properties" \
     && touch -d "@0"           "${JIRA_INSTALL}/conf/server.xml" \
 # 使用补丁包替换掉原来的jar包
     && rm -rf                  "${JIRA_INSTALL}/atlassian-jira/WEB-INF/lib/atlassian-extras-3.2.jar" \
-    && cp                      "/tmp/atlassian-extras-3.2.jar" "${JIRA_INSTALL}/atlassian-jira/WEB-INF/lib/atlassian-extras-3.2.jar" \
+    && cp                      /tmp/atlassian-extras-3.2.jar "${JIRA_INSTALL}/atlassian-jira/WEB-INF/lib/atlassian-extras-3.2.jar" \
+    && rm -rf                  /tmp \
     && chmod -R 700            "${JIRA_INSTALL}/conf" \
     && chmod -R 700            "${JIRA_INSTALL}/logs" \
     && chmod -R 700            "${JIRA_INSTALL}/temp" \
